@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import logo from "../../assets/logo.png";
-import { canisterId } from "../../../declarations/nft/index";
 import { HttpAgent } from "../../../../node_modules/@dfinity/agent";
 import { Actor } from "../../../../node_modules/@dfinity/agent/lib/cjs/actor";
 import { idlFactory } from "../../../declarations/nft/index";

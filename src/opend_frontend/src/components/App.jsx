@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import homeImage from "../../assets/home-img.png";
 import Item from "./Item";
 import Minter from "./Minter";
+import { opend_backend } from "../../../declarations/opend_backend/index";
 
 function App() {
   const canistetID = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
@@ -21,3 +22,4 @@ function App() {
 }
 
 export default App;
+

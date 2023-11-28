@@ -1,15 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from 'react-hook-form';
-
+import { opend_backend } from "../../../declarations/opend_backend/index";
+import Item from "./Item";
 
 function Minter() {
 
   const {register, handleSubmit} = useForm();
+  const[nftPrincipal,setnftPrincipal] = useState("");
+  const[loaderhidden,setloaderhidden] = useState(true);
  async function onsubmit(data){
-  console.log(data.name);
- }
+  setloaderhidden(false);
+  const name  = data.name;
+  console.log(name);
+  const image = data.image[0];
+  console.log(image);
+  const buff = await image.arrayBuffer();
+  const imageBytedata = [... new Uint8Array(buff)];
+  console.log(imageBytedata);
+  const newnfid = await opend_backend.mint(imageBytedata,name);
+  // console.log(newnfid.toText());
+ setnftPrincipal(newnfid);
+ setloaderhidden(true);
+}
+  if(nftPrincipal == ""){
   return (
     <div className="minter-container">
+      <div hidden = {loaderhidden} className="lds-ellipsis">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
       <h3 className="makeStyles-title-99 Typography-h3 form-Typography-gutterBottom">
         Create NFT
       </h3>
@@ -35,7 +56,6 @@ function Minter() {
               placeholder="e.g. CryptoDunks"
               type="text"
               className="form-InputBase-input form-OutlinedInput-input"
-
             />
             <fieldset className="PrivateNotchedOutline-root-60 form-OutlinedInput-notchedOutline"></fieldset>
           </div>
@@ -46,6 +66,19 @@ function Minter() {
       </form>
     </div>
   );
+  }
+  else{
+    return(
+    <div className="minter-container">
+        <h3 className="Typography-root makeStyles-title-99 Typography-h3 form-Typography-gutterBottom">
+          Minted!
+        </h3>
+        <div className="horizontal-center">
+          <Item  id ={nftPrincipal.toText()} /> 
+        </div>
+      </div>
+    );
+  }
 }
 
 export default Minter;
