@@ -8,7 +8,7 @@ function Item(props) {
   const[name,setname] = useState("");
   const[owner,setowner] = useState("");
   const[logos,setlogos] = useState();
-  const id = Principal.fromText(props.id);
+  const id = props.id;
   const localHost = "http://localhost:8080/";
 
   const agent =  new HttpAgent({
