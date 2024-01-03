@@ -6,11 +6,18 @@ import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import List "mo:base/List";
+import Nat "mo:base/Nat";
 
 
 actor opend_backend {
+  private type Listing = 
+  {
+    itemOwner :Principal;
+    itemPrice : Nat;
+  };
   var mapOfnfts = HashMap.HashMap<Principal,NFTActorClass.NFT>(1,Principal.equal,Principal.hash);
   var mapOfOwners = HashMap.HashMap<Principal,List.List<Principal>>(1,Principal.equal,Principal.hash);
+  var mapOflisting = HashMap.HashMap<Principal,Listing>(1,Principal.equal,Principal.hash);
   public shared(msg) func mint (imgedata:[Nat8],name: Text):async Principal{
       let owner : Principal = msg.caller;
       Debug.print(debug_show(Cycles.balance()));
@@ -37,4 +44,23 @@ actor opend_backend {
     };
     return List.toArray(userNft);
   };
+
+  public shared (msg) func listItem(id:Principal,price:Nat) : async Text{
+        var items :NFTActorClass.NFT = switch(mapOfnfts.get(id)) {
+          case null return "NFT does Not exist.";
+          case(?result) result;
+        };
+        let owner = await items.getOwner();
+        if(Principal.equal(owner,msg.caller)){
+            let newlisting : Listing = {
+               itemOwner = owner;
+              itemPrice = price;
+            };
+            mapOflisting.put(id,newlisting);
+            return"success";
+        }else{
+          return"you are not the owner";
+        }
+        
+  }
 };
