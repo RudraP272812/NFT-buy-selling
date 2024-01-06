@@ -7,7 +7,7 @@ import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
-
+import Bool "mo:base/Bool";
 
 actor opend_backend {
   private type Listing = 
@@ -19,12 +19,12 @@ actor opend_backend {
   var mapOfOwners = HashMap.HashMap<Principal,List.List<Principal>>(1,Principal.equal,Principal.hash);
   var mapOflisting = HashMap.HashMap<Principal,Listing>(1,Principal.equal,Principal.hash);
   public shared(msg) func mint (imgedata:[Nat8],name: Text):async Principal{
-      let owner : Principal = msg.caller;
-      Debug.print(debug_show(Cycles.balance()));
-      Cycles.add(100_500_000_000);
-      let newNft = await NFTActorClass.NFT(name,owner,imgedata);
-       Debug.print(debug_show(Cycles.balance()));
-      let newNFTprincipal = await newNft.getCanisterid();
+      var owner : Principal = msg.caller;
+      // Debug.print(debug_show(Cycles.balance()));
+      Cycles.add(100_500_000_000_000_000);
+      var newNft = await NFTActorClass.NFT(name,owner,imgedata);
+      //  Debug.print(debug_show(Cycles.balance()));
+      var newNFTprincipal = await newNft.getCanisterid();
       mapOfnfts.put(newNFTprincipal,newNft);
       addToOwnershipMap(owner, newNFTprincipal);
       return newNFTprincipal;
@@ -60,7 +60,17 @@ actor opend_backend {
             return"success";
         }else{
           return"you are not the owner";
-        }
-        
-  }
+        }  
+  };
+  public query func getOpendCanisterID() :async Principal {
+    return Principal.fromActor(opend_backend);
+  };
+  public query func isListed(id:Principal):async Bool{
+    if(mapOflisting.get(id)==null){
+      return false;
+    }
+    else{
+      return true;
+    }
+  };
 };

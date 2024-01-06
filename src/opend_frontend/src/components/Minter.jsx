@@ -10,13 +10,12 @@ function Minter() {
   const[loaderhidden,setloaderhidden] = useState(true);
  async function onsubmit(data){
   setloaderhidden(false);
-  const name  = data.name;
+  const name  = data.name; // take data from register.name which from form
   console.log(name);
-  const image = data.image[0];
+  const image = data.image[0];// take data from form as number array
   console.log(image);
   const buff = await image.arrayBuffer();
   const imageBytedata = [... new Uint8Array(buff)];
-  console.log(imageBytedata);
   const newnfid = await opend_backend.mint(imageBytedata,name);
   // console.log(newnfid.toText());
  setnftPrincipal(newnfid);

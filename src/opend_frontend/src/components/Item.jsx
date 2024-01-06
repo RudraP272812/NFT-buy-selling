@@ -2,25 +2,30 @@ import React, { useEffect, useState } from "react";
 import { HttpAgent } from "../../../../node_modules/@dfinity/agent";
 import { Actor } from "../../../../node_modules/@dfinity/agent/lib/cjs/actor";
 import { idlFactory } from "../../../declarations/nft/index";
-import { Principal } from "../../../../node_modules/@dfinity/principal";
 import Button from "./Button";
+import { opend_backend } from "../../../declarations/opend_backend/index";
 
 function Item(props) {
   const[name,setname] = useState("");
   const[owner,setowner] = useState("");
   const[logos,setlogos] = useState();
   const[button,setButton] = useState();
-  const[priceInput,setpriceInput] = useState();;
-  const id = props.id;
+  const[priceInput,setpriceInput] = useState();
+  const[loaderHidden,setloaderHidden] = useState(true);
+  const[blur,setBlur] = useState();
+  const id = props.id; // its id of current used you can say it's principal of current user import from app.jsx
   const localHost = "http://localhost:8080/";
+
 
   const agent =  new HttpAgent({
     host:localHost, 
     verifyQuerySignatures: false,
   });
-                 
+  //Use this just in Developermode not in live mode;
+  agent.fetchRootKey();
+  let NFTActor;            
   async function loadNft() {
-    const NFTActor = await Actor.createActor(idlFactory,{
+    NFTActor = await Actor.createActor(idlFactory,{
       agent,
       canisterId:id,
       
@@ -30,13 +35,18 @@ function Item(props) {
     const name = await NFTActor.getName();
     const Owner = await NFTActor.getOwner();
     const Logo = await NFTActor.getAsset();
-    const ImageContenet = new Uint8Array(Logo);
-    const image =URL.createObjectURL(new Blob([ImageContenet.buffer],{type:"image/png"}))
+    const ImageContenet = new Uint8Array(Logo);//first we have to convert image to Uint8Array
+    const image =URL.createObjectURL(new Blob([ImageContenet.buffer],{type:"image/png"}));
     setname(name);
     setowner(Owner.toText());
     setlogos(image);
-    
-    setButton(<Button handleClick = { handleSell}  text={"Sell"}></Button>)
+    const nftIslisted = await opend_backend.isListed(props.id);
+    // if(nftIslisted){
+    //   setowner("openD");
+    //   setBlur({filter: "blur(4px)"});
+    // } else{
+    // setButton(<Button handleClick = { handleSell}  text={"Sell"} ></Button>)
+    // };
   }
   useEffect(()=>{
     loadNft();
@@ -50,17 +60,43 @@ function Item(props) {
         className="price-input"
         value={price}
         onChange={(e)=>price = e.target.value}
+      
       />);
-      setButton(<Button handleClick = { handleSell} text={"Confirm"}></Button>)
+      setButton(<Button handleClick = { sellItem} text={"Confirm"} ></Button>)
   }
-  
+  async function sellItem() {
+    setBlur({filter: "blur(4px)"});
+    setloaderHidden(false);
+    console.log("sell items = "+price);
+    const listingres = await opend_backend.listItem(props.id,Number(price));
+    console.log("listin = "+listingres);
+    if(listingres =="success"){
+      const OpendID = await opend_backend.getOpendCanisterID();
+      const transferresult = await NFTActor.transferOwnership(OpendID);
+      console.log("transferresult = "+ transferresult);
+      if(transferresult == "Success")
+      {
+        setpriceInput();
+        setButton();
+        setloaderHidden(true);
+        setowner("openD");
+      }
+    }
+  }
   return (
     <div className="disGrid-item">
       <div className="disPaper-root disCard-root makeStyles-root-17 disPaper-elevation1 disPaper-rounded">
         <img
           className="disCardMedia-root makeStyles-image-19 disCardMedia-media disCardMedia-img"
           src={logos}
+          style={blur}
         />
+        <div className="lds-ellipsis" hidden = {loaderHidden}>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
         <div className="disCardContent-root">
           <h2 className="disTypography-root makeStyles-bodyText-24 disTypography-h5 disTypography-gutterBottom">
             {name}<span className="purple-text"></span>
