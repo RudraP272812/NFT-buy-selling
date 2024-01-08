@@ -21,7 +21,7 @@ actor opend_backend {
   public shared(msg) func mint (imgedata:[Nat8],name: Text):async Principal{
       var owner : Principal = msg.caller;
       // Debug.print(debug_show(Cycles.balance()));
-      Cycles.add(100_500_000_000_000_000);
+      Cycles.add(100_500_000_000);
       var newNft = await NFTActorClass.NFT(name,owner,imgedata);
       //  Debug.print(debug_show(Cycles.balance()));
       var newNFTprincipal = await newNft.getCanisterid();

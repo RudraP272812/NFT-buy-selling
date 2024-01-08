@@ -37,22 +37,26 @@ function Item(props) {
     const Logo = await NFTActor.getAsset();
     const ImageContenet = new Uint8Array(Logo);//first we have to convert image to Uint8Array
     const image =URL.createObjectURL(new Blob([ImageContenet.buffer],{type:"image/png"}));
+    console.log(image);
+    console.log(Owner.toText());
     setname(name);
     setowner(Owner.toText());
     setlogos(image);
+    console.log(props.id);
     const nftIslisted = await opend_backend.isListed(props.id);
-    // if(nftIslisted){
-    //   setowner("openD");
-    //   setBlur({filter: "blur(4px)"});
-    // } else{
-    // setButton(<Button handleClick = { handleSell}  text={"Sell"} ></Button>)
-    // };
+    if(nftIslisted){
+      setowner("openD");
+      setBlur({filter: "blur(4px)"});
+    } else{
+    setButton(<Button handleClick = { handleSell}  text={"Sell"} ></Button>)
+    };
   }
   useEffect(()=>{
     loadNft();
   },[]);
   let price;
   function handleSell(){
+    console.log("enter to sell");
       console.log("sell Clicked");
       setpriceInput(<input
         placeholder="Price in DANG"
@@ -65,6 +69,7 @@ function Item(props) {
       setButton(<Button handleClick = { sellItem} text={"Confirm"} ></Button>)
   }
   async function sellItem() {
+    console.log("enter to sell");
     setBlur({filter: "blur(4px)"});
     setloaderHidden(false);
     console.log("sell items = "+price);
