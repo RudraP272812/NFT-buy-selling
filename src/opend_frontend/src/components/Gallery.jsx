@@ -8,7 +8,6 @@ function Gallery(Props) {
     {
       setItems(
         Props.ids.map((NFTid ) =>
-        
           <Item id = {NFTid} key = {NFTid.toText()}/>
         ));
     }

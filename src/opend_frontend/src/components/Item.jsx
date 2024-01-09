@@ -4,6 +4,7 @@ import { Actor } from "../../../../node_modules/@dfinity/agent/lib/cjs/actor";
 import { idlFactory } from "../../../declarations/nft/index";
 import Button from "./Button";
 import { opend_backend } from "../../../declarations/opend_backend/index";
+import CURRENT_USER_ID from "../index";
 
 function Item(props) {
   const[name,setname] = useState("");
@@ -11,6 +12,8 @@ function Item(props) {
   const[logos,setlogos] = useState();
   const[button,setButton] = useState();
   const[priceInput,setpriceInput] = useState();
+  const[sellStatus,setsellStatus] = useState("");
+  const[handleBuy,sethandleBuy] = useState();
   const[loaderHidden,setloaderHidden] = useState(true);
   const[blur,setBlur] = useState();
   const id = props.id; // its id of current used you can say it's principal of current user import from app.jsx
@@ -42,14 +45,23 @@ function Item(props) {
     setname(name);
     setowner(Owner.toText());
     setlogos(image);
-    console.log(props.id);
-    const nftIslisted = await opend_backend.isListed(props.id);
-    if(nftIslisted){
-      setowner("openD");
-      setBlur({filter: "blur(4px)"});
-    } else{
-    setButton(<Button handleClick = { handleSell}  text={"Sell"} ></Button>)
-    };
+    if(props.role == "collection")
+    {
+      const nftIslisted = await opend_backend.isListed(props.id);
+      if(nftIslisted){
+        setowner("openD");
+        setBlur({filter: "blur(4px)"});
+        setsellStatus("Listed");
+      } else{
+      setButton(<Button handleClick = { handleSell}  text={"Sell"} ></Button>)
+      };
+    }else if(props.role == "discover") 
+    {
+      const originalOwner = await opend_backend.getOriginalOwner(props.id);
+      if(originalOwner.toText()!=CURRENT_USER_ID.toText()){
+      setButton(<Button handleClick = { handleBuy}  text={"Buy"} ></Button>)
+      }
+    }
   }
   useEffect(()=>{
     loadNft();
@@ -85,6 +97,7 @@ function Item(props) {
         setButton();
         setloaderHidden(true);
         setowner("openD");
+        setsellStatus("Listed");
       }
     }
   }
@@ -104,7 +117,7 @@ function Item(props) {
       </div>
         <div className="disCardContent-root">
           <h2 className="disTypography-root makeStyles-bodyText-24 disTypography-h5 disTypography-gutterBottom">
-            {name}<span className="purple-text"></span>
+            {name}<span className="purple-text"> {sellStatus}</span>
           </h2>
           <p className="disTypography-root makeStyles-bodyText-24 disTypography-body2 disTypography-colorTextSecondary">
             Owner: {owner}

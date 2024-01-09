@@ -8,6 +8,7 @@ import HashMap "mo:base/HashMap";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
 import Bool "mo:base/Bool";
+import Iter "mo:base/Iter";
 
 actor opend_backend {
   private type Listing = 
@@ -15,16 +16,14 @@ actor opend_backend {
     itemOwner :Principal;
     itemPrice : Nat;
   };
-  var mapOfnfts = HashMap.HashMap<Principal,NFTActorClass.NFT>(1,Principal.equal,Principal.hash);
-  var mapOfOwners = HashMap.HashMap<Principal,List.List<Principal>>(1,Principal.equal,Principal.hash);
-  var mapOflisting = HashMap.HashMap<Principal,Listing>(1,Principal.equal,Principal.hash);
-  public shared(msg) func mint (imgedata:[Nat8],name: Text):async Principal{
-      var owner : Principal = msg.caller;
-      // Debug.print(debug_show(Cycles.balance()));
+  var mapOfnfts = HashMap.HashMap<Principal, NFTActorClass.NFT>(1, Principal.equal, Principal.hash);
+  var mapOfOwners = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
+  var mapOflisting = HashMap.HashMap<Principal, Listing>(1, Principal.equal, Principal.hash);
+   public shared(msg) func mint(imgData: [Nat8], name: Text) : async Principal {
+      let owner : Principal = msg.caller;
       Cycles.add(100_500_000_000);
-      var newNft = await NFTActorClass.NFT(name,owner,imgedata);
-      //  Debug.print(debug_show(Cycles.balance()));
-      var newNFTprincipal = await newNft.getCanisterid();
+      let newNft = await NFTActorClass.NFT(name,owner,imgData);
+      let newNFTprincipal = await newNft.getCanisterid();
       mapOfnfts.put(newNFTprincipal,newNft);
       addToOwnershipMap(owner, newNFTprincipal);
       return newNFTprincipal;
@@ -43,6 +42,10 @@ actor opend_backend {
       case (?result) result;
     };
     return List.toArray(userNft);
+  };
+  public query func getListedNfts(): async [Principal]{
+    let ids = Iter.toArray(mapOflisting.keys());
+    return ids;
   };
 
   public shared (msg) func listItem(id:Principal,price:Nat) : async Text{
@@ -73,4 +76,23 @@ actor opend_backend {
       return true;
     }
   };
+
+   public query func getOriginalOwner(id: Principal) : async Principal {
+      var listing : Listing = switch (mapOflisting.get(id)) {
+        case null return Principal.fromText("");
+        case (?result) result;
+      };
+
+      return listing.itemOwner;
+    };
+
+    public query func getListedNFTPrice(id: Principal) : async Nat {
+      var listing : Listing = switch (mapOflisting.get(id)) {
+        case null return 0;
+        case (?result) result;
+      };
+
+      return listing.itemPrice;
+
+    };
 };
