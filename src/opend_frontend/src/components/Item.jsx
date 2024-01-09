@@ -5,6 +5,7 @@ import { idlFactory } from "../../../declarations/nft/index";
 import Button from "./Button";
 import { opend_backend } from "../../../declarations/opend_backend/index";
 import CURRENT_USER_ID from "../index";
+import PriceLabel from "./priceLabel";
 
 function Item(props) {
   const[name,setname] = useState("");
@@ -16,6 +17,7 @@ function Item(props) {
   const[handleBuy,sethandleBuy] = useState();
   const[loaderHidden,setloaderHidden] = useState(true);
   const[blur,setBlur] = useState();
+  const[priceLabel,setpriceLabel] = useState();
   const id = props.id; // its id of current used you can say it's principal of current user import from app.jsx
   const localHost = "http://localhost:8080/";
 
@@ -61,7 +63,10 @@ function Item(props) {
       if(originalOwner.toText()!=CURRENT_USER_ID.toText()){
       setButton(<Button handleClick = { handleBuy}  text={"Buy"} ></Button>)
       }
+      const price = await opend_backend.getListedNFTPrice(props.id);
+      setpriceLabel(<PriceLabel sellPrice = {price}/>);
     }
+
   }
   useEffect(()=>{
     loadNft();
@@ -116,6 +121,7 @@ function Item(props) {
         <div></div>
       </div>
         <div className="disCardContent-root">
+          {priceLabel}
           <h2 className="disTypography-root makeStyles-bodyText-24 disTypography-h5 disTypography-gutterBottom">
             {name}<span className="purple-text"> {sellStatus}</span>
           </h2>
