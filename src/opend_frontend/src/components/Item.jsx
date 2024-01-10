@@ -14,7 +14,7 @@ function Item(props) {
   const[button,setButton] = useState();
   const[priceInput,setpriceInput] = useState();
   const[sellStatus,setsellStatus] = useState("");
-  const[handleBuy,sethandleBuy] = useState();
+  // const[handleBuy,sethandleBuy] = useState();
   const[loaderHidden,setloaderHidden] = useState(true);
   const[blur,setBlur] = useState();
   const[priceLabel,setpriceLabel] = useState();
@@ -64,7 +64,7 @@ function Item(props) {
       setButton(<Button handleClick = { handleBuy}  text={"Buy"} ></Button>)
       }
       const price = await opend_backend.getListedNFTPrice(props.id);
-      setpriceLabel(<PriceLabel sellPrice = {price}/>);
+      setpriceLabel(<PriceLabel sellPrice = {price.toString()}/>);
     }
 
   }
@@ -84,6 +84,9 @@ function Item(props) {
       
       />);
       setButton(<Button handleClick = { sellItem} text={"Confirm"} ></Button>)
+  }
+  async function handleBuy(){
+    console.log("Buy was Triggered");
   }
   async function sellItem() {
     console.log("enter to sell");
